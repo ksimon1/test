@@ -1,0 +1,35 @@
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: test
+  annotations:
+    pipelinesascode.tekton.dev/on-event: "[pull_request, push]"
+    pipelinesascode.tekton.dev/on-target-branch: "[main]"
+    pipelinesascode.tekton.dev/task: "[modify-data-object]"
+spec:
+  pipelineSpec:
+    tasks:
+      - name: create-dv
+        taskRef:
+          name: modify-data-object
+        params:
+          - name: manifest
+            value: |-
+              apiVersion: cdi.kubevirt.io/v1beta1
+              kind: DataVolume
+              metadata:
+                generateName:test
+              spec:
+                storage:
+                  resources:
+                    requests:
+                      storage: 5Gi
+                source:
+                  blank: {}
+          - name: waitForSuccess
+            value: false
+          - name: allowReplace
+            value: true
+
+
